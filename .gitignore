@@ -53,6 +53,14 @@ SourceArt/**/*.tga
 !Build/*/PakBlacklist*.txt
 !Build/**/*.ico
 
-# Exclude everything in the project except 'Source' folder
-/*
-!/NGPTask/Source/
+
+# Include only the Source folder and its files
+!NGPTask/
+!NGPTask/Source/
+!NGPTask/Source/**/
+
+# Exclude everything by default
+
+NGPTask/Config
+NGPTask/Content
+NGPTask/NGPTask.uproject
