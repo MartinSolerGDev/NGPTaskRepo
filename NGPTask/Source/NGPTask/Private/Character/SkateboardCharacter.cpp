@@ -9,7 +9,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include <Character/SkatePlayerController.h>
-
+#include "TimerManager.h"
 
 
 // Sets default values
@@ -21,20 +21,43 @@ ASkateboardCharacter::ASkateboardCharacter()
 	// First-Person Camera Setup
 	FirstPersonCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	FirstPersonCameraComponent->SetupAttachment(GetMesh(), TEXT("head")); // Attach to head bone (optional)
-	FirstPersonCameraComponent->SetRelativeLocation(FVector(0, 22, 30.0f));
+	FirstPersonCameraComponent->SetRelativeLocation(FVector(0, -22, 50.0f));
 	FirstPersonCameraComponent->SetRelativeRotation(FRotator(0, 90, 90));
 	FirstPersonCameraComponent->bUsePawnControlRotation = true;
 
 	//CharacterMesh
 
-	GetMesh()->SetSkeletalMesh(LoadObject<USkeletalMesh>(nullptr, TEXT("/Game/Character/CharacterMeshes/Remy.Remy")));
-	GetMesh()->SetRelativeLocation(FVector(0.0f, 0.0f, -90.0f)); // Adjust based on character height
-	GetMesh()->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
-	GetMesh()->SetRelativeScale3D(FVector(0.5f, 0.5f, 0.5f));
+	if (GetMesh())
+	{
+		GetMesh()->SetSkeletalMesh(LoadObject<USkeletalMesh>(nullptr, TEXT("/Game/Character/CharacterMeshes/Remy.Remy")));
+		GetMesh()->SetRelativeLocation(FVector(0.0f, 0.0f, -90.0f)); // Adjust based on character height
+		GetMesh()->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
+		GetMesh()->SetRelativeScale3D(FVector(0.5f, 0.5f, 0.5f));
 
-
+		static ConstructorHelpers::FObjectFinder<UAnimBlueprintGeneratedClass> AnimBlueprintClass(TEXT("/Game/Character/Animations/ABP_Skateboarding.ABP_Skateboarding_C"));
+		if (AnimBlueprintClass.Succeeded())
+		{
+			GetMesh()->SetAnimInstanceClass(AnimBlueprintClass.Object);
+		}
+	}
 	// Skateboard Mesh Setup
+	SkateMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SkateMesh"));
+	SkateMesh->SetStaticMesh(LoadObject<UStaticMesh>(nullptr, TEXT("/Game/Character/CharacterMeshes/Skate/FinalSkate.FinalSkate")));
+	SkateMesh->SetupAttachment(GetMesh());
+	SkateMesh->SetRelativeLocation(FVector(0.0f, 0.0f, -90.0f)); //
+	SkateMesh->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
+	SkateMesh->SetRelativeScale3D(FVector(1.f, 1.f, 1.f));
+
+
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
+
+	//PlayerVariables
+	DefaultSpeed = 600.0f;    // Default walking speed
+	BoostedSpeed = 900.f;   // Boosted speed
+	CooldownTime = 5.0f;      // Cooldown period in seconds
+	bCanAccelerate = true;
+
+
 }
 
 // Called when the game starts or when spawned
@@ -94,7 +117,7 @@ void ASkateboardCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 void ASkateboardCharacter::Move(const FInputActionValue& Value)
 {
 	FVector2D MovementVector = Value.Get<FVector2D>();
-	UE_LOG(LogTemp, Warning, TEXT("Move function called."));
+	
 	CurrentMovementInput = MovementVector;
 	if (Controller && MovementVector.SizeSquared() > 0.0f)
 	{
@@ -104,7 +127,6 @@ void ASkateboardCharacter::Move(const FInputActionValue& Value)
 
 		AddMovementInput(ForwardDirection, MovementVector.Y);
 		AddMovementInput(RightDirection, MovementVector.X);
-		
 	}
 }
 
@@ -125,6 +147,45 @@ void ASkateboardCharacter::Jump()
 
 void ASkateboardCharacter::Accelerate()
 {
+	if (bCanAccelerate)
+	{
+		// Increase speed temporarily
+		GetCharacterMovement()->MaxWalkSpeed = BoostedSpeed;
 
+		// Prevent multiple speed increases
+		bCanAccelerate = false;
+
+
+		GetWorldTimerManager().SetTimer(SpeedIncreaseTimer, this, &ASkateboardCharacter::ResetSpeed, 3.0f, false);
+	}
+
+}
+
+void ASkateboardCharacter::StartCooldown()
+{
+	// Block acceleration for cooldown period
+	GetWorldTimerManager().SetTimer( CooldownTimerHandle, this, &ASkateboardCharacter::EnableAccelerate, CooldownTime, false );
+}
+
+void ASkateboardCharacter::ResetSpeed()
+{
+	//First invalidate timer 
+	GetWorldTimerManager().ClearTimer(SpeedIncreaseTimer);
+
+
+	// Revert to default speed
+	GetCharacterMovement()->MaxWalkSpeed = DefaultSpeed;
+
+	// Start cooldown period
+	StartCooldown();
+
+}
+
+void ASkateboardCharacter::EnableAccelerate()
+{
+	//First invalidate timer
+	GetWorldTimerManager().ClearTimer(CooldownTimerHandle);
+	// Allow acceleration again
+	bCanAccelerate = true;
 }
 

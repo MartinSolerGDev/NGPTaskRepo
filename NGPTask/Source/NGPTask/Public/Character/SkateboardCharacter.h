@@ -34,6 +34,8 @@ public:
 	void Jump();
 	void Accelerate();
 
+
+
 private:
 
 	//Camera class for the player
@@ -44,12 +46,20 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Skateboard")
 	class UStaticMeshComponent* SkateMesh;
 
-
 	//Movement vector for handle the player input movement
 	FVector2D CurrentMovementInput;
 
-protected:
+	float DefaultSpeed;
+	float BoostedSpeed;
 
-	
+	bool bCanAccelerate;
+	float CooldownTime;
+
+	void StartCooldown();
+	void ResetSpeed();
+	void EnableAccelerate();
+
+	FTimerHandle CooldownTimerHandle;
+	FTimerHandle SpeedIncreaseTimer;
 
 };
