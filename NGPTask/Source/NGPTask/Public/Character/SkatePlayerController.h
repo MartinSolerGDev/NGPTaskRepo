@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "Widgets/GameplayWidget.h"
 #include "SkatePlayerController.generated.h"
 
 /**
@@ -43,11 +44,20 @@ private:
 
 	void InitializeInput();
 
+	UPROPERTY()
+	UGameplayWidget* SkateHUDWidget;
+
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UUserWidget> HUDWidgetClass;
+
+
+
 public:
+	UGameplayWidget* GetGameplayWidget() const { return SkateHUDWidget; }
 
 	UInputAction* GetAccelerateAction() const { return AccelerateAction;  }
 	UInputAction* GetJumpAction() const { return JumpAction; }
 	UInputAction* GetLookAction() const { return LookAction; }
 	UInputAction* GetMoveAction() const { UE_LOG(LogTemp, Warning, TEXT("GetMoveAction called. MoveAction: %p"), MoveAction); return MoveAction; }
-
 };

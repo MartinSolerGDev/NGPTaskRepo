@@ -12,6 +12,7 @@
 #include "TimerManager.h"
 
 
+
 // Sets default values
 ASkateboardCharacter::ASkateboardCharacter()
 {
@@ -21,7 +22,7 @@ ASkateboardCharacter::ASkateboardCharacter()
 	// First-Person Camera Setup
 	FirstPersonCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	FirstPersonCameraComponent->SetupAttachment(GetMesh(), TEXT("head")); // Attach to head bone (optional)
-	FirstPersonCameraComponent->SetRelativeLocation(FVector(0, -22, 50.0f));
+	FirstPersonCameraComponent->SetRelativeLocation(FVector(0, -22, 70.0f));
 	FirstPersonCameraComponent->SetRelativeRotation(FRotator(0, 90, 90));
 	FirstPersonCameraComponent->bUsePawnControlRotation = true;
 
@@ -44,9 +45,9 @@ ASkateboardCharacter::ASkateboardCharacter()
 	SkateMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SkateMesh"));
 	SkateMesh->SetStaticMesh(LoadObject<UStaticMesh>(nullptr, TEXT("/Game/Character/CharacterMeshes/Skate/FinalSkate.FinalSkate")));
 	SkateMesh->SetupAttachment(GetMesh());
-	SkateMesh->SetRelativeLocation(FVector(0.0f, 0.0f, -90.0f)); //
+	SkateMesh->SetRelativeLocation(FVector(-20.0f, 0.0f, 55.0f)); //
 	SkateMesh->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
-	SkateMesh->SetRelativeScale3D(FVector(1.f, 1.f, 1.f));
+	SkateMesh->SetRelativeScale3D(FVector(1.f, 1.5f, 1.f));
 
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
@@ -65,12 +66,14 @@ void ASkateboardCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+
 }
 
 // Called every frame
 void ASkateboardCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
 
 }
 
@@ -106,12 +109,9 @@ void ASkateboardCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 			if (SkateController->GetAccelerateAction())
 			{
 				EnhancedInputComponent->BindAction(SkateController->GetAccelerateAction(), ETriggerEvent::Triggered, this, &ASkateboardCharacter::Accelerate);
-				
 			}
 		}
-
 	}
-
 }
 
 void ASkateboardCharacter::Move(const FInputActionValue& Value)
@@ -159,6 +159,11 @@ void ASkateboardCharacter::Accelerate()
 		GetWorldTimerManager().SetTimer(SpeedIncreaseTimer, this, &ASkateboardCharacter::ResetSpeed, 3.0f, false);
 	}
 
+}
+
+float ASkateboardCharacter::GetAccelerationRemainingTime() const
+{
+	return GetWorldTimerManager().GetTimerRemaining(SpeedIncreaseTimer);
 }
 
 void ASkateboardCharacter::StartCooldown()

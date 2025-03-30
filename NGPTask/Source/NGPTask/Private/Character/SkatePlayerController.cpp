@@ -6,9 +6,22 @@
 #include "Kismet/GameplayStatics.h"
 #include "InputMappingContext.h"
 #include "InputAction.h"
+#include <Character/SkateboardCharacter.h>
 
 ASkatePlayerController::ASkatePlayerController()
 {
+    // Load the Gameplay Widget class
+    static ConstructorHelpers::FClassFinder<UUserWidget> WidgetBP(TEXT("/Game/Character/GameplayWidget"));
+
+    if (WidgetBP.Succeeded())
+    {
+        HUDWidgetClass = WidgetBP.Class;
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("Failed to load Gameplay Widget Blueprint!"));
+        return;
+    }
 }
 
 void ASkatePlayerController::BeginPlay()
@@ -19,6 +32,17 @@ void ASkatePlayerController::BeginPlay()
 
 void ASkatePlayerController::Tick(float DeltaTime)
 {
+	Super::Tick(DeltaTime);
+
+    if (SkateHUDWidget)
+    {
+        
+        if (ASkateboardCharacter* SkateCharacter = Cast<ASkateboardCharacter>(GetPawn()))
+        {
+            float RemainingTime = SkateCharacter->GetAccelerationRemainingTime();
+            SkateHUDWidget->UpdateAccelerationBar(RemainingTime, 3.f);
+        }
+    }
 }
 
 void ASkatePlayerController::OnPossess(APawn* InPawn)
@@ -28,6 +52,23 @@ void ASkatePlayerController::OnPossess(APawn* InPawn)
     //UE_LOG(LogTemp, Warning, TEXT("PlayerController: OnPossess called, initializing input..."));
 
     InitializeInput();
+
+
+
+    // Ensure the Widget Class is valid
+    if (HUDWidgetClass)
+    {
+        SkateHUDWidget = CreateWidget<UGameplayWidget>(this, HUDWidgetClass);
+        if (SkateHUDWidget)
+        {
+            SkateHUDWidget->AddToViewport();
+            UE_LOG(LogTemp, Warning, TEXT("Gameplay Widget successfully created and added to viewport."));
+        }
+        else
+        {
+            UE_LOG(LogTemp, Error, TEXT("Failed to create Gameplay Widget!"));
+        }
+    }
 }
 
 void ASkatePlayerController::InitializeInput()

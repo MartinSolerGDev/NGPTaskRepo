@@ -21,4 +21,17 @@ public:
 protected:
 
 	virtual void BeginPlay() override;
+
+private:
+
+	FTimerHandle GameTimerHandle;
+	FTimerHandle DisplayTextTimerHandle;
+	int32 PlayerScore;
+	int32 MaxScore; 
+	float GameTime;
+
+public:
+	void IncreaseScore();
+	void UpdateTimer();
+	void HideQuestText();
 };

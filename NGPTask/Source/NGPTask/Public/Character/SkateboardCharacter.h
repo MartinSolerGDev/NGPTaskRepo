@@ -7,6 +7,7 @@
 #include "InputActionValue.h"
 #include "SkateboardCharacter.generated.h"
 
+
 UCLASS()
 class NGPTASK_API ASkateboardCharacter : public ACharacter
 {
@@ -35,6 +36,7 @@ public:
 	void Accelerate();
 
 
+	float GetAccelerationRemainingTime() const;
 
 private:
 
@@ -61,5 +63,6 @@ private:
 
 	FTimerHandle CooldownTimerHandle;
 	FTimerHandle SpeedIncreaseTimer;
+
 
 };
