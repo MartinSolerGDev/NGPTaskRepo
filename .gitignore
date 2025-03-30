@@ -61,6 +61,5 @@ SourceArt/**/*.tga
 
 # Exclude everything by default
 
-NGPTask/Config
 NGPTask/Content
-NGPTask/NGPTask.uproject
+
