@@ -55,4 +55,4 @@ SourceArt/**/*.tga
 
 # Exclude everything in the project except 'Source' folder
 /*
-!Source/
+!/NGPTask/Source/
