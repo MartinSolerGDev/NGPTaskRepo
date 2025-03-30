@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "InputActionValue.h"
 #include "SkateboardCharacter.generated.h"
 
 UCLASS()
@@ -25,5 +26,26 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+
+	// Input functions
+	void Move(const FInputActionValue& Value);
+	void Look(const FInputActionValue& Value);
+	void JumpAction();
+	void Accelerate(bool bAccelerate);
+
+private:
+
+	//Camera class for the player
+	UPROPERTY(VisibleAnywhere, Category = "Camera")
+	class UCameraComponent* FirstPersonCameraComponent;
+
+	// Skateboard mesh that will be attach to the player
+	UPROPERTY(VisibleAnywhere, Category = "Skateboard")
+	class UStaticMeshComponent* SkateMesh;
+
+
+	//Movement vector for handle the player input movement
+	FVector2D CurrentMovementInput;
 
 };
