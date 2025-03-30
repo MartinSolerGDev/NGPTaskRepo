@@ -31,8 +31,8 @@ public:
 	// Input functions
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
-	void JumpAction();
-	void Accelerate(bool bAccelerate);
+	void Jump();
+	void Accelerate();
 
 private:
 
@@ -47,5 +47,9 @@ private:
 
 	//Movement vector for handle the player input movement
 	FVector2D CurrentMovementInput;
+
+protected:
+
+	
 
 };
